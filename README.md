@@ -4,30 +4,15 @@ Conjunto de utilidades en Python para **inspeccionar y modificar tickets Kerbero
 (`.ccache`, formato MIT) y su **PAC** (Privilege Attribute Certificate), pensado para
 equipos de **Red Team / pentesting en entornos Active Directory**.
 
-- **`view_ticket.py`** — visor de *solo lectura*: parsea el `.ccache`, descifra el
+- **`tgtview.py`** — visor de *solo lectura*: parsea el `.ccache`, descifra el
   ticket y decodifica el PAC.
-- **`edit_ticket.py`** — editor *in situ*: abre un ticket existente, cambia solo los
+- **`tgtedit.py`** — editor *in situ*: abre un ticket existente, cambia solo los
   campos indicados (grupos, SIDs, RID, UAC…), **re-firma el PAC y re-cifra**, y
   reescribe el `.ccache`.
-- **`ticket_web.py`** *(opcional)* — interfaz web local sobre el motor de
-  `edit_ticket.py` para editar de forma visual y dinámica.
 
-> ⚠️ **Uso autorizado únicamente.** Estas herramientas forjan/alteran material de
-> autenticación. Empléalas exclusivamente en **engagements con autorización por
-> escrito**, laboratorios propios o CTF. El uso no autorizado contra sistemas de
-> terceros es ilegal.
 
 ---
 
-## Requisitos
-
-- Python 3.7+
-- [`pycryptodome`](https://pypi.org/project/pycryptodome/) (o `pycryptodomex`)
-- `flask` *(solo para `ticket_web.py`)*
-
-```bash
-pip install pycryptodome flask
-```
 
 Las herramientas necesitan la **clave** del principal que cifra el ticket:
 - **Golden ticket** → hash/clave de **KRBTGT** (NT hash para RC4, o clave AES).
