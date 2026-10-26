@@ -8,7 +8,7 @@ Conjunto de utilidades en Python para **inspeccionar y modificar tickets Kerbero
 - **`tgtedit.py`** — editor *in situ*: abre un ticket existente, cambia solo los
   campos indicados (grupos, SIDs, RID, UAC…), **re-firma el PAC y re-cifra**, y
   reescribe el `.ccache`.
-- La herramienta es especialmente útil para ataques de SID Historia y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
+- La herramienta es especialmente útil para ataques de SID History y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
   
 
 
@@ -122,7 +122,7 @@ python3 tgtedit.py admin.ccache -k <key> --groups 513,512,518,519,520
 ## Notas técnicas
 
 - Soporta `etype` **23 (RC4-HMAC)**, **17 (AES128-CTS)** y **18 (AES256-CTS)**.
-- La herramienta es especialmente útil para ataques de SID Historia y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
+- La herramienta es especialmente útil para ataques de SID History y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
 - Implementa las primitivas de RFC 3961/3962 (n-fold, derivación de claves, CBC-CTS)
   y la verificación/cálculo de firmas del PAC (HMAC-SHA1-96 y HMAC-MD5).
 - Al editar el PAC, **las firmas se recalculan siempre**: cambiar el contenido invalida
