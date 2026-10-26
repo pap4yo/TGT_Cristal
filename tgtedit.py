@@ -477,7 +477,8 @@ def decode_logon_info(buf):
     def ft(): return struct.unpack_from("<Q", r.raw(8), 0)[0]
     logon_time = ft(); ft(); ft(); ft(); ft(); ft()
     eff_name = r.ustr_header(); full_name = r.ustr_header()
-    r.ustr_header(); r.ustr_header(); r.ustr_header(); r.ustr_header()
+    logon_script = r.ustr_header(); profile_path = r.ustr_header()
+    home_dir = r.ustr_header(); home_drive = r.ustr_header()
     r.u16(); r.u16()
     user_id = r.u32(); primary_gid = r.u32()
     group_count = r.u32(); group_ids_ref = r.u32()
@@ -492,10 +493,16 @@ def decode_logon_info(buf):
 
     out = {"user_id": user_id, "primary_gid": primary_gid, "uac": uac,
            "logon_time": logon_time, "groups": [], "extra_sids": []}
-    for hdr in (eff_name, full_name):
+    # consume los buffers de las SEIS cadenas en orden; si no, se desalinea
+    # todo lo posterior (grupos, domain SID, extra SIDs -> se pierde el SID history)
+    for hdr in (eff_name, full_name, logon_script, profile_path,
+                home_dir, home_drive):
         if hdr["ref"]:
             s = r.ustr_buffer()
-            out["account" if hdr is eff_name else "full_name"] = s
+            if hdr is eff_name:
+                out["account"] = s
+            elif hdr is full_name:
+                out["full_name"] = s
     if group_ids_ref:
         r.u32()
         for _ in range(group_count):
