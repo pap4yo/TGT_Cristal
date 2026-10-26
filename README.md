@@ -1,14 +1,15 @@
 # Kerberos Ticket Toolkit
 
 Conjunto de utilidades en Python para **inspeccionar y modificar tickets Kerberos**
-(`.ccache`, formato MIT) y su **PAC** (Privilege Attribute Certificate), pensado para
-equipos de **Red Team / pentesting en entornos Active Directory**.
+(`.ccache`) y su **PAC** (Privilege Attribute Certificate).
 
 - **`tgtview.py`** — visor de *solo lectura*: parsea el `.ccache`, descifra el
   ticket y decodifica el PAC.
 - **`tgtedit.py`** — editor *in situ*: abre un ticket existente, cambia solo los
   campos indicados (grupos, SIDs, RID, UAC…), **re-firma el PAC y re-cifra**, y
   reescribe el `.ccache`.
+- **La herramienta es especialmente útil para ataques de SID Historia y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
+  
 
 
 ---
