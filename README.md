@@ -3,9 +3,9 @@
 Conjunto de utilidades en Python para **inspeccionar y modificar tickets Kerberos**
 (`.ccache`) y su **PAC** (Privilege Attribute Certificate).
 
-- **`tgtview.py`** — visor de *solo lectura*: parsea el `.ccache`, descifra el
+- **`viewtgt.py`** — visor de *solo lectura*: parsea el `.ccache`, descifra el
   ticket y decodifica el PAC.
-- **`tgtedit.py`** — editor *in situ*: abre un ticket existente, cambia solo los
+- **`edittgt.py`** — editor *in situ*: abre un ticket existente, cambia solo los
   campos indicados (grupos, SIDs, RID, UAC…), **re-firma el PAC y re-cifra**, y
   reescribe el `.ccache`.
 - La herramienta es especialmente útil para ataques de SID History y Golden Ticket, donde la suite de Impacket recurrentemente da problemas debido a las actualizaciones constantes de Microsoft. La herramienta no crea el ticket, solo edita los parámetros especificados.
@@ -71,7 +71,7 @@ python3 tgtview.py ticket.ccache -k <key> --json
 
 ---
 
-## `tgtedit.py` — Editor in situ
+## `edittgt.py` — Editor in situ
 
 Abre un ticket **existente**, descifra con su clave, aplica **solo** los cambios que
 indiques sobre el `PAC_LOGON_INFO` y **conserva todo lo demás byte a byte** (tiempos,
@@ -85,14 +85,14 @@ Es una herramienta **autónoma** (solo depende de `pycryptodome`).
 
 ```bash
 # Añadir Domain Admins (512) y un extra-SID, conservando el resto
-python3 tgtedit.py admin.ccache -k <key> \
+python3 edittgt.py admin.ccache -k <key> \
     --add-groups 512 --add-extra-sids S-1-5-21-10-20-30-519
 
 # Cambiar el RID del usuario a 500 (Administrator) sin tocar tiempos/clave
-python3 tgtedit.py admin.ccache -k <key> --user-id 500 -o editado.ccache
+python3 edittgt.py admin.ccache -k <key> --user-id 500 -o editado.ccache
 
 # Reemplazar por completo la lista de grupos
-python3 tgtedit.py admin.ccache -k <key> --groups 513,512,518,519,520
+python3 edittgt.py admin.ccache -k <key> --groups 513,512,518,519,520
 ```
 
 ### Opciones
@@ -127,7 +127,7 @@ python3 tgtedit.py admin.ccache -k <key> --groups 513,512,518,519,520
   y la verificación/cálculo de firmas del PAC (HMAC-SHA1-96 y HMAC-MD5).
 - Al editar el PAC, **las firmas se recalculan siempre**: cambiar el contenido invalida
   las firmas previas, por lo que `SERVER_CHECKSUM`/`KDC_CHECKSUM` se regeneran.
-- `tgtedit.py` preserva los buffers del PAC que no modifica (`CLIENT_INFO`, etc.);
+- `edittgt.py` preserva los buffers del PAC que no modifica (`CLIENT_INFO`, etc.);
   actualmente `CLIENT_INFO` no se sincroniza automáticamente al cambiar la cuenta.
 
 ---
